@@ -4,11 +4,18 @@ const endpoint = "https://nlba-experimentation-eus.openai.azure.com/openai/deplo
 document.getElementById('sendBtn').addEventListener('click', sendMessage);
 
 function getLocalStorage() {
-    return JSON.parse(localStorage.getItem('chatHistory')) || [];
+    const threadId = JSON.parse(localStorage.getItem('threadId')) || '';
+    const chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
+
+    return {
+        threadId,
+        chatHistory
+    };
 }
 
-function setLocalStorage(messages) {
+function setLocalStorage( threadId, messages) {
     localStorage.setItem('chatHistory', JSON.stringify(messages));
+    localStorage.setItem('threadId', JSON.stringify(threadId));
 }
 
 function updateChatbox(message, isUser = false) {
@@ -20,40 +27,72 @@ function updateChatbox(message, isUser = false) {
 }
 
 function retrieveChatHistory() {
-    const chatHistory = getLocalStorage();
+    const chatHistory = getLocalStorage().chatHistory;
     chatHistory.forEach(msg => {
         updateChatbox(msg.content, msg.role === 'user');
     });
 }
+
+const generateResponse = async (query) => {
+
+    const response = await fetch("http://localhost:7071/api/messages", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+        },
+        body: JSON.stringify({
+            query: query
+        })
+    });
+
+    try {
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("An error occurred:", error.response ? error.response.data : error.message);
+        return null;     
+    }
+}
+
 
 async function sendMessage() {
     const userInput = document.getElementById('userInput').value;
     if (!userInput.trim()) return;
 
     // Prepare the messages array for the request
-    let messages = getLocalStorage();
+    let messages = getLocalStorage().chatHistory || [];
     messages.push({ role: "user", content: userInput });
+
+    console.log(messages)
 
     // Display user message in the chatbox and temporarily update local storage
     updateChatbox(userInput, true);
 
-    const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'api-key': `${apiKey}`
-        },
-        body: JSON.stringify({
-            messages: messages
-        })
-    });
-    const data = await response.json();
-    const botReply = data.choices[0].message.content;
+    
+    const response = await generateResponse(userInput);
+    const threadId = response.messages[0].thread_id;
+
+    console.log(getLocalStorage().threadId)
+    console.log(threadId);
+
+    let botReply = '';
+
+    const messageResponseContent = response.messages[0].content;
+    for (const item of messageResponseContent) {
+        if (item.type === "text") {
+            botReply = item.text?.value;            
+        } else if (item.type === "image_file") {
+            botReply = item.imageFile?.fileId;
+        }
+    }
 
     // Update the chat with the bot's reply and finalize local storage
     updateChatbox(botReply);
-    messages.push({ role: "assistant", content: botReply }); // Include the bot's reply in messages
-    setLocalStorage(messages); // Update local storage with the full conversation
+    // Include the bot's reply in messages
+    messages.push({ role: "assistant", content: botReply }); 
+    // Update local storage with the full conversation
+    setLocalStorage(threadId, messages); 
 
     document.getElementById('userInput').value = ''; // Clear input field
 }
