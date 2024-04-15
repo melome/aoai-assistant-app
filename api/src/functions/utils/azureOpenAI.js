@@ -10,10 +10,10 @@ const model = "gpt-35-turbo";
 const apiVersion = "2024-02-15-preview";
 
 // Azure OPEN AI Assistant
-const assistantId = "asst_fRiGSuHQxjFh3Ooy5BtAoqgb"
+//const assistantId = "asst_fRiGSuHQxjFh3Ooy5BtAoqgb"
 
 // Azure OPEN AI Axios
-const createThreadAndRun = async (question) => {
+const createThreadAndRun = async (assistantId, question) => {
     let data = JSON.stringify({
         "assistant_id": assistantId,
         "thread": {
@@ -49,6 +49,57 @@ const createThreadAndRun = async (question) => {
         return null;
     }
 }
+
+const createThread = async (messages = [] ) => {
+    let data = JSON.stringify({
+        "messages": messages
+      });
+      
+      let config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: `${endpoint}/openai/threads?api-version=${apiVersion}`,
+        headers: { 
+          'Content-Type': 'application/json', 
+          'api-key': azureApiKey
+        },
+        data : data
+      };
+
+    try {
+        const { data } = await axios(config);
+        return data;
+    } catch (error) {
+        console.error("An error occurred:", error.response ? error.response.data : error.message);
+    }
+}
+
+const 
+
+const createRun = async (assistantId, threadId) => {
+    let data = JSON.stringify({
+        "assistant_id": assistantId,
+      });
+      
+      let config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: `${endpoint}/openai/threads/${threadId}/runs?api-version=${apiVersion}`,
+        headers: { 
+          'Content-Type': 'application/json', 
+          'api-key': azureApiKey
+        },
+        data : data
+      };
+
+    try {
+        const { data } = await axios(config);
+        return data;
+    } catch (error) {
+        console.error("An error occurred:", error.response ? error.response.data : error.message);
+    }
+}
+
 
 const listMessages = async (threadId) => {
     let config = {
