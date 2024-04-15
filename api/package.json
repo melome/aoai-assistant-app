@@ -2,13 +2,15 @@
   "name": "api",
   "version": "1.0.0",
   "description": "",
+  "type": "commonjs",
   "scripts": {
     "start": "func start",
     "test": "echo \"No tests yet...\""
   },
   "dependencies": {
     "@azure/functions": "^4.0.0",
-    "@azure/openai-assistants": "^1.0.0-beta.5"
+    "@azure/openai-assistants": "^1.0.0-beta.5",
+    "axios": "^1.6.8"
   },
   "main": "src/functions/*.js"
 }
