@@ -13,14 +13,14 @@ const apiVersion = "2024-02-15-preview";
 //const assistantId = "asst_fRiGSuHQxjFh3Ooy5BtAoqgb"
 
 // Azure OPEN AI Axios
-const createThreadAndRun = async (assistantId, question) => {
+const createThreadAndRun = async (assistantId, userMessage) => {
     let data = JSON.stringify({
         "assistant_id": assistantId,
         "thread": {
             "messages": [
                 {
                     "role": "user",
-                    "content": question
+                    "content": userMessage
                 }
             ]
         }
@@ -50,9 +50,14 @@ const createThreadAndRun = async (assistantId, question) => {
     }
 }
 
-const createThread = async (messages = [] ) => {
+const createThread = async (userMessage) => {
     let data = JSON.stringify({
-        "messages": messages
+        "messages": [
+          {
+            "role": "user",
+            "content": userMessage
+          }
+        ]
       });
       
       let config = {
@@ -74,7 +79,30 @@ const createThread = async (messages = [] ) => {
     }
 }
 
-const 
+const addMessageToThread = async (threadId, userMessage) => {
+    let data = JSON.stringify({
+        "role": "user",
+        "content": userMessage
+      });
+      
+      let config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: `${endpoint}/openai/threads/${threadId}/messages?api-version=${apiVersion}`,
+        headers: { 
+          'Content-Type': 'application/json', 
+          'api-key': azureApiKey
+        },
+        data : data
+      };
+
+    try {
+        const { data } = await axios(config);
+        return data;
+    } catch (error) {
+        console.error("An error occurred:", error.response ? error.response.data : error.message);
+    }
+}
 
 const createRun = async (assistantId, threadId) => {
     let data = JSON.stringify({
@@ -169,6 +197,8 @@ const submitToolOutputsToRun = async (threadId, runId, toolOutputs) => {
 
 module.exports ={ 
     createThreadAndRun, 
+    addMessageToThread,
+    createRun,
     listMessages, 
     getRun, 
     submitToolOutputsToRun 
