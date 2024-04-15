@@ -33,9 +33,14 @@ function retrieveChatHistory() {
     });
 }
 
-const generateResponse = async (query) => {
+const generateResponse = async (query, threadId) => {
 
-    const response = await fetch("http://localhost:7071/api/messages", {
+    let url = 'http://localhost:7071/api/messages'
+    if (threadId) {
+        url += `?threadId=${threadId}`;
+    }
+
+    const response = await fetch(url, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -69,9 +74,16 @@ async function sendMessage() {
     // Display user message in the chatbox and temporarily update local storage
     updateChatbox(userInput, true);
 
-    
-    const response = await generateResponse(userInput);
-    const threadId = response.messages[0].thread_id;
+    let threadId = getLocalStorage().threadId || '';
+    let response = null;
+
+    if (threadId) {
+        response = await generateResponse(userInput, threadId);
+        threadId = response.messages[0].thread_id;
+    } else {
+        response = await generateResponse(userInput);
+        threadId = response.messages[0].thread_id;
+    }
 
     console.log(getLocalStorage().threadId)
     console.log(threadId);
