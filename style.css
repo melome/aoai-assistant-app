@@ -1,0 +1,12 @@
+#chatbox {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: center;
+    max-width: 500px;
+    margin: 50px auto;
+}
+
+#userInput {
+    margin: 20px 0px;
+}

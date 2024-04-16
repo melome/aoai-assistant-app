@@ -1,6 +1,3 @@
-const apiKey = "1ff0fb0d864f4a809a8164a33a85c28a";
-const endpoint = "https://nlba-experimentation-eus.openai.azure.com/openai/deployments/text-gen/chat/completions?api-version=2024-02-15-preview";
-
 document.getElementById('sendBtn').addEventListener('click', sendMessage);
 
 function getLocalStorage() {

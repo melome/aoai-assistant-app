@@ -48,6 +48,8 @@ const createThreadAndRun = async (question) => {
         console.log("Thread ID: ", data.thread_id);
         console.log("Run ID: ", data.id);
         console.log("Run Status: ", data.status);
+
+        
         return data;
     }
     catch (error) {
