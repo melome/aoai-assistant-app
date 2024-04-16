@@ -1,0 +1,14 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "AzureWebJobsFeatureFlags": "EnableWorkerIndexing",
+    "AZURE_OPENAI_ENDPOINT": "https://<YOUR AZURE OPEN AI RESOURCE NAME>.openai.azure.com",
+    "AZURE_OPENAI_API_KEY": "<YOUR AZURE OPEN AI KEY>"
+  },
+  "Host": {
+    "LocalHttpPort": 7071,
+    "CORS": "*"
+  }
+}
